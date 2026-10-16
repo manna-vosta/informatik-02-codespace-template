@@ -87,9 +87,12 @@ These skills support terminology work; they do not approve mappings, mint new SC
 ### Using the openEHR assistant
 For an openEHR task like translating, you can explicitly ask the assistant to use the MCP and its openEHR guidance:
 
-> Use the openEHR MCP for this: Find and retrieve the existing archetype [paste its ID or name here] and add/update a translation of its human-readable text into Swedish. Preserve the archetype structure, node identifiers, terminology codes, and constraints. Clearly flag terms whose Swedish translation is uncertain or needs review, and identify the source archetype in your response.
+> Use the openEHR MCP for this: Find and retrieve the existing archetype [paste its ID or name here] and add/update a translation of its human-readable text into Swedish. Adhere to openEHR Sweden's translation guidelines in https://openehr.atlassian.net/wiki/spaces/SWE/pages/2511667215/Riktlinjer+och+st+d+f+r+vers+ttning+v2.0 and its subpage https://openehr.atlassian.net/wiki/spaces/SWE/pages/2510750279/Standard+vers+ttningar+per+flik+i+CKM . Preserve the archetype structure, node identifiers, terminology codes, and constraints. Clearly flag terms whose Swedish translation is uncertain or needs review, and identify the source archetype in your response.
 
 Replace the placeholder with the ID or name you want to work on. The assistant should use the openEHR tools and guidance to retrieve the source before translating it; don’t ask it to invent an archetype or terminology codes.
+
+Download the file that is created by, in the left hand-side column, right-clicking on the correct file under "import landing zone" and choosing "Download...". 
+Create a new branch in CKM and upload the translated archetype.
 
 ### SCT terminology tooling
 The codespace image installs [SCT](https://github.com/pacharanero/sct) v0.27.0 as the `sct` command. The version is pinned in `.devcontainer/Dockerfile`; rebuild the dev container after changing it.
