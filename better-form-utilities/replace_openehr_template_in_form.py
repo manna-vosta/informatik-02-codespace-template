@@ -40,6 +40,10 @@ from typing import Iterable
 
 FORM_DESCRIPTION_PREFIX = "form-description"
 TEMPLATE_ID_JSON = re.compile(r'"templateId"\s*:\s*"(?P<value>[^"]*)"')
+# Whitespace (including newlines) allowed between tags and around the value text.
+TEMPLATE_ID_OPT = re.compile(
+    r"(<template_id>\s*<value>\s*)(?P<value>[^<]*?)(\s*</value>\s*</template_id>)"
+)
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -76,22 +80,32 @@ def replace_template_id_json(text: str, old_id: str, new_id: str) -> tuple[str, 
 
 
 def replace_template_id_opt(opt_text: str, old_id: str, new_id: str) -> tuple[str, int]:
-    """Replace only <template_id><value>…</value></template_id> blocks.
+    """Replace the value inside <template_id>…<value>…</value>…</template_id>.
+
+    Accepts whitespace/newlines between the tags and around the value text; only the
+    value text is changed. Surrounding markup and whitespace are left as-is.
 
     If the OPT already uses new_id, leave it unchanged and return the existing count.
     """
-    new_needle = f"<template_id><value>{new_id}</value></template_id>"
-    old_needle = f"<template_id><value>{old_id}</value></template_id>"
-    already = opt_text.count(new_needle)
-    if already and old_id != new_id and old_needle not in opt_text:
+
+    values = [m.group("value") for m in TEMPLATE_ID_OPT.finditer(opt_text)]
+    already = sum(1 for v in values if v == new_id)
+    old_count = sum(1 for v in values if v == old_id)
+    if already and old_id != new_id and old_count == 0:
         return opt_text, already
-    count = opt_text.count(old_needle)
-    if count == 0:
+    if old_count == 0:
         raise SystemExit(
-            f"OPT has no <template_id><value>{old_id}</value></template_id> "
-            f"and no <template_id><value>{new_id}</value></template_id>"
+            f"OPT has no <template_id>…<value>{old_id}</value>…</template_id> "
+            f"and no <template_id>…<value>{new_id}</value>…</template_id>"
         )
-    return opt_text.replace(old_needle, new_needle), count
+
+    def _sub(match: re.Match[str]) -> str:
+        if match.group("value") == old_id:
+            return f"{match.group(1)}{new_id}{match.group(3)}"
+        return match.group(0)
+
+    new_text, _ = TEMPLATE_ID_OPT.subn(_sub, opt_text)
+    return new_text, old_count
 
 
 def load_opt_bytes(opt_path: Path) -> tuple[str, bytes]:
