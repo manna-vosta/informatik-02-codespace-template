@@ -2,6 +2,9 @@
 
 Takes a Better EHR Studio form **package** zip (the nested format with `package-manifest.json` + inner form zip + OPT), swaps in a new OPT via `--new_opt`, updates `templateId` / OPT `<template_id>` and form display/file names, then writes a correctly re-packed package zip with refreshed SHA-256 hashes.
 
+## Background
+Changing the name of an openEHR template inside an already existing form (e.g. if you want two major versions in your system) may force you to rebuild all form details and automations even though the new template is almost the same content. This tool helps you swap template without wrecking the rest of the form. 
+
 ## Prerequisites
 
 - **Python 3.9 or later**
