@@ -84,12 +84,58 @@ This repository includes two homegrown experimental (fairly untested) rudimentar
 
 These skills support terminology work; they do not approve mappings, mint new SCTIDs, or replace clinical and terminology-authoring review.
 
+## openEHR 
+
+### Swedish archetype translation guidelines
+This repository includes three files to support consistent Swedish translations of openEHR archetypes:
+- **`.github/copilot-instructions.md`** – Permanent instructions for GitHub Copilot on how to retrieve, translate, review and validate archetypes, including handling existing translations and translator metadata.
+- **`translation-guidelines/swedish-guidelines.md`** – Swedish openEHR translation guidelines, adapted for use by AI agents.
+- **`translation-guidelines/standard-translations.md`** – Approved standard translations for commonly used openEHR terms and fields.
+Copilot is instructed to read and follow these files during translation and review tasks. This means users only need to specify the archetype ID in their prompt rather than provide the translation guidelines each time.
+All AI-generated translations must be reviewed by a human before publication in CKM.
+
+#### Activating the openEHR MCP server
+
+The openEHR Assistant MCP server is configured in .vscode/mcp.json, but it may be stopped when starting or reopening a GitHub Codespace.
+Before translating an openEHR archetype:
+1. Open the Command Palette in VS Code (Ctrl + Shift + P).
+2. Search for and select MCP: List Servers.
+3. Select Show locally configured servers if openehr-assistant-mcp is not initially listed.
+4. Find and select openehr-assistant-mcp.
+5. If the server shows Stopped, select Start Server. If it already shows Running, no action is needed.
+6. Wait until the server is running. The output log should show Connection state: Running and Discovered 12 tools.
+7. Open a new GitHub Copilot chat in Agent mode and start the translation.
+
+When is this necessary?
+Check the server status when starting a new Codespace session or if Copilot reports that the openEHR MCP tools are unavailable.
+You do not need to restart the server before every translation if it is already running.
+If the server is running but Copilot still cannot access ckm_archetype_search or ckm_archetype_get, check that the tools are enabled for the current Copilot Agent session.
+
 ### Using the openEHR assistant
 For an openEHR task like translating, you can explicitly ask the assistant to use the MCP and its openEHR guidance:
 
-> Use the openEHR MCP for this: Find and retrieve the existing archetype [paste its ID or name here] and add/update a translation of its human-readable text into Swedish. Preserve the archetype structure, node identifiers, terminology codes, and constraints. Clearly flag terms whose Swedish translation is uncertain or needs review, and identify the source archetype in your response.
+Use the openEHR MCP to retrieve the existing archetype [ARCHETYPE ID].
+Follow the repository's Copilot instructions and Swedish translation guidelines.
+Determine whether the archetype is untranslated, partially translated, or fully translated. Create, complete, or review and correct its Swedish translation accordingly.
+Preserve the archetype's technical structure and existing correct translations.
+Save the resulting ADL file in import-landing-zone without overwriting an existing file.
+Report any uncertain terminology or issues requiring human review.
 
-Replace the placeholder with the ID or name you want to work on. The assistant should use the openEHR tools and guidance to retrieve the source before translating it; don’t ask it to invent an archetype or terminology codes.
+#### Review translation
+If you want to review your translation, open a new Copilot chat and paste in:
+
+Review the Swedish translation in import-landing-zone/[ARCHETYPE ID].sv.adl.
+Use the original English content and follow both repository translation guideline files and the Copilot instructions.
+Check translation completeness, clinical terminology, grammatical correctness, consistency, standard translations, metadata, descriptions, coded values, and references to other archetypes.
+Pay particular attention to the previously flagged terminology uncertainties.
+Classify findings as errors, recommended improvements, or optional stylistic suggestions. For each finding, provide the node ID, original English text, current Swedish text, proposed Swedish text, and a brief justification.
+Preserve correct existing translations. Do not suggest changes solely based on stylistic preference.
+This is a review-only task. Do not modify any files.
+
+#### Downloading and importing translated archetypes into CKM
+Once Copilot has completed the Swedish translation, the resulting .adl file is saved in the import-landing-zone folder.
+To download the file, locate it in the VS Code Explorer, right-click it and select Download. The file will be saved to your computer.
+After reviewing the translation, log in to openEHR Clinical Knowledge Manager (CKM) and upload the translated ADL file to the corresponding archetype. Review the archetype translation before saving.
 
 ### SCT terminology tooling
 The codespace image installs [SCT](https://github.com/pacharanero/sct) v0.27.0 as the `sct` command. The version is pinned in `.devcontainer/Dockerfile`; rebuild the dev container after changing it.
